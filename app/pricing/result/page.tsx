@@ -147,3 +147,5 @@ export default async function PricingResult({ searchParams }: Parameters) {
         </main>
     );
 }
+
+export const runtime = "edge";
