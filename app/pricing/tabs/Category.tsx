@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState, Dispatch, SetStateAction } from "react";
 import models from "@/public/models.json";
 
