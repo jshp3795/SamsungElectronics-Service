@@ -14,7 +14,7 @@ export default function DeviceCategory(
         setModel: Dispatch<SetStateAction<string>>,
     }
 ) {
-    const [ model, setModel ] = useState(/SM-\w\d\d\d\w/.test(navigator.userAgent) ? navigator.userAgent.match(/SM-\w\d\d\d\w/)![0].substring(0, 7) : null);
+    const [ model, setModel ] = useState(typeof navigator !== "undefined" ? (/SM-\w\d\d\d\w/.test(navigator.userAgent) ? navigator.userAgent.match(/SM-\w\d\d\d\w/)![0].substring(0, 7) : null) : null);
 
     function proceed(category: string) {
         categoryManager.setCategory(category);
@@ -33,6 +33,8 @@ export default function DeviceCategory(
 
     useEffect(() => {
         (async function() {
+            if (typeof navigator === "undefined") return;
+
             const _navigator = navigator as Navigator & { userAgentData?: any };
             if (_navigator.userAgentData) {
                 // UserAgentData에서 기기 모델명 받아오기 (SSL 사용할 경우, 즉 HTTPS에서만 접근 가능)
