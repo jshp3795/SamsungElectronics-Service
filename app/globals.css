@@ -1,33 +1,132 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+body {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+    background: rgb(230, 230, 230);
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+.Pretendard {
+    font-family: "Pretendard Variable";
+}
+
+.text-color-fade {
+    transition: color 1s ease-in-out;
+}
+
+@keyframes expand {
+    from {
+        top: 22rem;
+        height: 3.25rem;
+    }
+    to {
+        top: 0;
+        margin-top: 1.5rem;
+        height: calc(100dvh - 3rem);
+    }
+}
+
+.expand {
+    animation: 0.5s cubic-bezier(0.2, 0.9, 0.8, 1) both expand;
+}
+
+@keyframes minimize {
+    from {
+        top: 0;
+        margin-top: 1.5rem;
+        height: calc(100dvh - 3rem);
+    }
+    to {
+        top: 22rem;
+        height: 3.25rem;
+    }
+}
+
+.minimize {
+    animation: 0.5s cubic-bezier(0.2, 0.9, 0.8, 1) both minimize;
+}
+
+@keyframes horizontal-shaking {
+    0% { transform: translateX(0) }
+    25% { transform: translateX(-6px) }
+    50% { transform: translateX(4px) }
+    75% { transform: translateX(-2px) }
+    100% { transform: translateX(0) }
+}
+
+@keyframes horizontal-shaking2 {
+    0% { transform: translateX(0) }
+    25% { transform: translateX(6px) }
+    50% { transform: translateX(-4px) }
+    75% { transform: translateX(2px) }
+    100% { transform: translateX(0) }
+}
+
+@keyframes slide-to-left {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(-20px);
+        opacity: 0;
+    }
+}
+
+@keyframes slide-to-right {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(20px);
+        opacity: 0;
+    }
+}
+
+@keyframes slide-from-right {
+    from {
+        transform: translateX(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slide-from-left {
+    from {
+        transform: translateX(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+::view-transition-old(tab-forward) {
+    animation: 0.3s ease-out both slide-to-left;
+}
+
+::view-transition-new(tab-forward) {
+    animation: 0.3s ease-in-out both slide-from-right;
+}
+
+::view-transition-old(tab-backward) {
+    animation: 0.3s ease-out both slide-to-right;
+}
+
+::view-transition-new(tab-backward) {
+    animation: 0.3s ease-in-out both slide-from-left;
 }

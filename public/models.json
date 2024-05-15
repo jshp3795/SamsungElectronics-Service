@@ -1,0 +1,78 @@
+{
+    "SM-F731": {
+        "category": "Z",
+        "name": "Z Flip5"
+    },
+    "SM-S921": {
+        "category": "S",
+        "name": "S24"
+    },
+    "SM-S926": {
+        "category": "S",
+        "name": "S24+"
+    },
+    "SM-S928": {
+        "category": "S",
+        "name": "S24 Ultra"
+    },
+    "SM-S911": {
+        "category": "S",
+        "name": "S23"
+    },
+    "SM-S916": {
+        "category": "S",
+        "name": "S23+"
+    },
+    "SM-S918": {
+        "category": "S",
+        "name": "S23 Ultra"
+    },
+    "SM-S711": {
+        "category": "S",
+        "name": "S23 FE"
+    },
+    "SM-S901": {
+        "category": "S",
+        "name": "S22"
+    },
+    "SM-S906": {
+        "category": "S",
+        "name": "S22+"
+    },
+    "SM-S908": {
+        "category": "S",
+        "name": "S22 Ultra"
+    },
+    "SM-G991": {
+        "category": "S",
+        "name": "S21 5G"
+    },
+    "SM-G996": {
+        "category": "S",
+        "name": "S21+ 5G"
+    },
+    "SM-G998": {
+        "category": "S",
+        "name": "S21 Ultra 5G"
+    },
+    "SM-G990": {
+        "category": "S",
+        "name": "S21 FE 5G"
+    },
+    "SM-G981": {
+        "category": "S",
+        "name": "S20 5G"
+    },
+    "SM-G986": {
+        "category": "S",
+        "name": "S20+ 5G"
+    },
+    "SM-G988": {
+        "category": "S",
+        "name": "S20 Ultra 5G"
+    },
+    "SM-G781": {
+        "category": "S",
+        "name": "S20 FE 5G"
+    }
+}
