@@ -102,7 +102,7 @@ export async function getSearchResults(query: string): Promise<string[]> {
             data[2] === "스마트폰"
     );
 
-    return data.map((data: DataType) => data[0]);
+    return [ data.map((data: DataType) => data[0])[0] ];
 }
 
 export async function getRepairPricesByModel(model: string, careplus: string) {
