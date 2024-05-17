@@ -1,7 +1,11 @@
+import { filterResults } from "./Utils";
+
 export default async function getRepairPrices(query: string, careplus: string) {
     const results = await getSearchResults(query);
 
     if (results.length === 0) return false;
+
+    const filtered = filterResults(results);
 
     const prices: {
         display: {
@@ -40,7 +44,7 @@ export default async function getRepairPrices(query: string, careplus: string) {
         camera: { },
         backGlass: 0
     };
-    for (const result of results) {
+    for (const result of filtered) {
         const price = await getRepairPricesByModel(result, careplus);
 
         if (!price) continue;
@@ -102,7 +106,7 @@ export async function getSearchResults(query: string): Promise<string[]> {
             data[2] === "스마트폰"
     );
 
-    return [ data.map((data: DataType) => data[0])[0] ];
+    return data.map((data: DataType) => data[0]);
 }
 
 export async function getRepairPricesByModel(model: string, careplus: string) {
@@ -182,58 +186,26 @@ export async function getRepairPricesByModel(model: string, careplus: string) {
         mainDisplayNonReturnPrice += kitPrice;
 
         // 삼성 케어 플러스
-        if (careplus === "081420" || careplus === "081421") { // 2020년 8월 14일 ~ 2023년 7월 31일
-            let displayPrice = 0;
-            if (data[0].type2 === "S 시리즈" || data[0].type2 === "노트 시리즈") {
-                displayPrice = 80_000;
-            }
-            else if (data[0].type2 === "Z 시리즈") {
-                if (data[0].pet_name[0].includes("폴드")) {
-                    displayPrice = 160_000;
-                }
-                else if (data[0].pet_name[0].includes("플립")) {
-                    displayPrice = 140_000;
-                }
-            }
-            else if (data[0].type2 === "기타 시리즈") {
-                if (data[0].model_name.startsWith("SM-A")) {
-                    displayPrice = 35_000;
-                }
-            }
-
-            mainDisplayReturnPrice = displayPrice;
-            mainDisplayNonReturnPrice = displayPrice;
-        }
-        else if (careplus === "080123") { // 2023년 8월 1일 ~ 2023년 12월 28일
-            let displayPrice = 0;
-            if (data[0].type2 === "S 시리즈" || data[0].type2 === "노트 시리즈") {
-                displayPrice = 80_000;
-            }
-            else if (data[0].type2 === "Z 시리즈") {
-                if (data[0].pet_name[0].includes("폴드")) {
-                    displayPrice = 290_000;
-                }
-                else if (data[0].pet_name[0].includes("플립")) {
-                    displayPrice = 190_000;
-                }
-            }
-            else if (data[0].type2 === "기타 시리즈") {
-                if (data[0].model_name.startsWith("SM-A")) {
-                    displayPrice = 35_000;
-                }
-            }
-
-            mainDisplayReturnPrice = displayPrice;
-            mainDisplayNonReturnPrice = displayPrice;
-        }
-        else if (careplus === "122923") { // 2023년 12월 29일 ~
+        if (careplus === "122923") { // 2023년 12월 29일 ~
             if (data[0].type2 === "S 시리즈" || (data[0].type2 === "기타 시리즈" && data[0].model_name.startsWith("SM-A"))) {
-                mainDisplayReturnPrice *= 0.25;
-                mainDisplayNonReturnPrice *= 0.25;
+                if (mainDisplayReturnPrice > 30_000) {
+                    mainDisplayReturnPrice *= 0.25; // 자기부담금 25%
+                    mainDisplayReturnPrice = Math.max(mainDisplayReturnPrice, 30_000); // 자기부담금 최소 3만 원
+                }
+                if (mainDisplayNonReturnPrice > 30_000) {
+                    mainDisplayNonReturnPrice *= 0.25; // 자기부담금 25%
+                    mainDisplayNonReturnPrice = Math.max(mainDisplayNonReturnPrice, 30_000); // 자기부담금 최소 3만 원
+                }
             }
             else if (data[0].type2 === "Z 시리즈") {
-                mainDisplayReturnPrice *= 0.3;
-                mainDisplayNonReturnPrice *= 0.3;
+                if (mainDisplayReturnPrice > 30_000) {
+                    mainDisplayReturnPrice *= 0.3; // 자기부담금 30%
+                    mainDisplayReturnPrice = Math.max(mainDisplayReturnPrice, 30_000); // 자기부담금 최소 3만 원
+                }
+                if (mainDisplayNonReturnPrice > 30_000) {
+                    mainDisplayNonReturnPrice *= 0.3; // 자기부담금 30%
+                    mainDisplayNonReturnPrice = Math.max(mainDisplayNonReturnPrice, 30_000); // 자기부담금 최소 3만 원
+                }
             }
         }
     }
@@ -257,50 +229,18 @@ export async function getRepairPricesByModel(model: string, careplus: string) {
         panelDisplayPrice += kitPrice;
 
         // 삼성 케어 플러스
-        if (careplus === "081420" || careplus === "081421") { // 2020년 8월 14일 ~ 2023년 7월 31일
-            if (data[0].type2 === "S 시리즈" || data[0].type2 === "노트 시리즈") {
-                panelDisplayPrice = 80_000;
-            }
-            else if (data[0].type2 === "Z 시리즈") {
-                if (data[0].pet_name[0].includes("폴드")) {
-                    panelDisplayPrice = 160_000;
-                }
-                else if (data[0].pet_name[0].includes("플립")) {
-                    panelDisplayPrice = 140_000;
-                }
-            }
-            else if (data[0].type2 === "기타 시리즈") {
-                if (data[0].model_name.startsWith("SM-A")) {
-                    panelDisplayPrice = 35_000;
-                }
-            }
-        }
-        else if (careplus === "080123") { // 2023년 8월 1일 ~ 2023년 12월 28일
-            if (data[0].type2 === "S 시리즈" || data[0].type2 === "노트 시리즈") {
-                panelDisplayPrice = 80_000;
-            }
-            else if (data[0].type2 === "Z 시리즈") {
-                if (data[0].pet_name[0].includes("폴드")) {
-                    panelDisplayPrice = 290_000;
-                }
-                else if (data[0].pet_name[0].includes("플립")) {
-                    panelDisplayPrice = 190_000;
-                }
-            }
-            else if (data[0].type2 === "기타 시리즈") {
-                if (data[0].model_name.startsWith("SM-A")) {
-                    panelDisplayPrice = 35_000;
-                }
-            }
-        }
-        else if (careplus === "122923") { // 2023년 12월 29일 ~
+        if (careplus === "122923") { // 2023년 12월 29일 ~
             if (data[0].type2 === "S 시리즈" || (data[0].type2 === "기타 시리즈" && data[0].model_name.startsWith("SM-A"))) {
-                panelDisplayPrice *= 0.25;
-                panelDisplayPrice *= 0.25;
+                if (panelDisplayPrice > 30_000) {
+                    panelDisplayPrice *= 0.25; // 자기부담금 25%
+                    panelDisplayPrice = Math.max(panelDisplayPrice, 30_000); // 자기부담금 최소 3만 원
+                }
             }
             else if (data[0].type2 === "Z 시리즈") {
-                panelDisplayPrice *= 0.3;
-                panelDisplayPrice *= 0.3;
+                if (panelDisplayPrice > 30_000) {
+                    panelDisplayPrice *= 0.3; // 자기부담금 30%
+                    panelDisplayPrice = Math.max(panelDisplayPrice, 30_000); // 자기부담금 최소 3만 원
+                }
             }
         }
     }
@@ -329,33 +269,28 @@ export async function getRepairPricesByModel(model: string, careplus: string) {
         subDisplayNonReturnPrice += kitPrice;
 
         // 삼성 케어 플러스
-        if (careplus === "081420" || careplus === "081421") { // 2020년 8월 14일 ~ 2023년 7월 31일
-            let displayPrice = 0;
-            if (data[0].pet_name[0].includes("폴드")) {
-                displayPrice = Math.min(displayPrice, 160_000);
+        if (careplus === "122923") { // 2023년 12월 29일 ~
+            // Z 시리즈 이외에는 서브 디스플레이가 없지만 출시를 대비해 코드 작성
+            if (data[0].type2 === "S 시리즈" || (data[0].type2 === "기타 시리즈" && data[0].model_name.startsWith("SM-A"))) {
+                if (subDisplayReturnPrice > 30_000) {
+                    subDisplayReturnPrice *= 0.25; // 자기부담금 25%
+                    subDisplayReturnPrice = Math.max(subDisplayReturnPrice, 30_000); // 자기부담금 최소 3만 원
+                }
+                if (subDisplayNonReturnPrice > 30_000) {
+                    subDisplayNonReturnPrice *= 0.25; // 자기부담금 25%
+                    subDisplayNonReturnPrice = Math.max(subDisplayNonReturnPrice, 30_000); // 자기부담금 최소 3만 원
+                }
             }
-            else if (data[0].pet_name[0].includes("플립")) {
-                displayPrice = Math.min(displayPrice, 140_000);
+            else if (data[0].type2 === "Z 시리즈") {
+                if (subDisplayReturnPrice > 30_000) {
+                    subDisplayReturnPrice *= 0.3; // 자기부담금 30%
+                    subDisplayReturnPrice = Math.max(subDisplayReturnPrice, 30_000); // 자기부담금 최소 3만 원
+                }
+                if (subDisplayNonReturnPrice > 30_000) {
+                    subDisplayNonReturnPrice *= 0.3; // 자기부담금 30%
+                    subDisplayNonReturnPrice = Math.max(subDisplayNonReturnPrice, 30_000); // 자기부담금 최소 3만 원
+                }
             }
-
-            subDisplayReturnPrice = displayPrice;
-            subDisplayNonReturnPrice = displayPrice;
-        }
-        else if (careplus === "080123") { // 2023년 8월 1일 ~ 2023년 12월 28일
-            let displayPrice = 0;
-            if (data[0].pet_name[0].includes("폴드")) {
-                displayPrice = Math.min(displayPrice, 290_000);
-            }
-            else if (data[0].pet_name[0].includes("플립")) {
-                displayPrice = Math.min(displayPrice, 190_000);
-            }
-
-            subDisplayReturnPrice = displayPrice;
-            subDisplayNonReturnPrice = displayPrice;
-        }
-        else if (careplus === "122923") { // 2023년 12월 29일 ~
-            subDisplayReturnPrice *= 0.3;
-            subDisplayNonReturnPrice *= 0.3;
         }
     }
     /* Display (Sub) */
@@ -381,50 +316,18 @@ export async function getRepairPricesByModel(model: string, careplus: string) {
             .reduce((prev, curr) => prev + curr, 0);
 
         // 삼성 케어 플러스
-        if (careplus === "081420" || careplus === "081421") { // 2020년 8월 14일 ~ 2023년 7월 31일
-            if (data[0].type2 === "S 시리즈" || data[0].type2 === "노트 시리즈") {
-                partPrice = 80_000;
-            }
-            else if (data[0].type2 === "Z 시리즈") {
-                if (data[0].pet_name[0].includes("폴드")) {
-                    partPrice = 160_000;
-                }
-                else if (data[0].pet_name[0].includes("플립")) {
-                    partPrice = 140_000;
-                }
-            }
-            else if (data[0].type2 === "기타 시리즈") {
-                if (data[0].model_name.startsWith("SM-A")) {
-                    partPrice = 35_000;
-                }
-            }
-        }
-        else if (careplus === "080123") { // 2023년 8월 1일 ~ 2023년 12월 28일
-            if (data[0].type2 === "S 시리즈" || data[0].type2 === "노트 시리즈") {
-                partPrice = 80_000;
-            }
-            else if (data[0].type2 === "Z 시리즈") {
-                if (data[0].pet_name[0].includes("폴드")) {
-                    partPrice = 290_000;
-                }
-                else if (data[0].pet_name[0].includes("플립")) {
-                    partPrice = 190_000;
-                }
-            }
-            else if (data[0].type2 === "기타 시리즈") {
-                if (data[0].model_name.startsWith("SM-A")) {
-                    partPrice = 35_000;
-                }
-            }
-        }
-        else if (careplus === "122923") { // 2023년 12월 29일 ~
+        if (careplus === "122923") { // 2023년 12월 29일 ~
             if (data[0].type2 === "S 시리즈" || (data[0].type2 === "기타 시리즈" && data[0].model_name.startsWith("SM-A"))) {
-                partPrice *= 0.25;
-                partPrice *= 0.25;
+                if (partPrice > 30_000) {
+                    partPrice *= 0.25; // 자기부담금 25%
+                    partPrice = Math.max(partPrice, 30_000); // 자기부담금 최소 3만 원
+                }
             }
             else if (data[0].type2 === "Z 시리즈") {
-                partPrice *= 0.3;
-                partPrice *= 0.3;
+                if (partPrice > 30_000) {
+                    partPrice *= 0.3; // 자기부담금 30%
+                    partPrice = Math.max(partPrice, 30_000); // 자기부담금 최소 3만 원
+                }
             }
         }
 
@@ -450,7 +353,7 @@ export async function getRepairPricesByModel(model: string, careplus: string) {
 
         // 삼성 케어 플러스
         if (careplus === "081420") { // 2020년 8월 14일 ~ 2021년 8월 13일
-            batteryPrice = 20_000;
+            batteryPrice = 20_000; // 자기부담금 2만 원
         }
     }
     /* Battery */
@@ -459,6 +362,7 @@ export async function getRepairPricesByModel(model: string, careplus: string) {
     const cameraMaterials = data.filter(material => material.parts_name === "카메라");
 
     // 삼성아 카메라 설명이 왜이렇냐... 망원 카메라도 2개면 몇배인지라도 적어주던지...
+    // 관련 정보가 부족해 부품을 판매하는 웹사이트에서 조사하였습니다.
     const partAliases = {
         "GH96-16305A": "망원 (x3)", // S24U
         "GH96-16350A": "망원 (x5)", // S24U
@@ -489,48 +393,18 @@ export async function getRepairPricesByModel(model: string, careplus: string) {
             .reduce((prev, curr) => prev + curr, 0);
 
         // 삼성 케어 플러스
-        if (careplus === "081420" || careplus === "081421") { // 2020년 8월 14일 ~ 2023년 7월 31일
-            if (data[0].type2 === "S 시리즈" || data[0].type2 === "노트 시리즈") {
-                partPrice = Math.min(partPrice, 80_000);
-            }
-            else if (data[0].type2 === "Z 시리즈") {
-                if (data[0].pet_name[0].includes("폴드")) {
-                    partPrice = Math.min(partPrice, 160_000);
-                }
-                else if (data[0].pet_name[0].includes("플립")) {
-                    partPrice = Math.min(partPrice, 140_000);
-                }
-            }
-            else if (data[0].type2 === "기타 시리즈") {
-                if (data[0].model_name.startsWith("SM-A")) {
-                    partPrice = Math.min(partPrice, 35_000);
-                }
-            }
-        }
-        else if (careplus === "080123") { // 2023년 8월 1일 ~ 2023년 12월 28일
-            if (data[0].type2 === "S 시리즈" || data[0].type2 === "노트 시리즈") {
-                partPrice = Math.min(partPrice, 80_000);
-            }
-            else if (data[0].type2 === "Z 시리즈") {
-                if (data[0].pet_name[0].includes("폴드")) {
-                    partPrice = Math.min(partPrice, 290_000);
-                }
-                else if (data[0].pet_name[0].includes("플립")) {
-                    partPrice = Math.min(partPrice, 190_000);
-                }
-            }
-            else if (data[0].type2 === "기타 시리즈") {
-                if (data[0].model_name.startsWith("SM-A")) {
-                    partPrice = Math.min(partPrice, 35_000);
-                }
-            }
-        }
-        else if (careplus === "122923") { // 2023년 12월 29일 ~
+        if (careplus === "122923") { // 2023년 12월 29일 ~
             if (data[0].type2 === "S 시리즈" || (data[0].type2 === "기타 시리즈" && data[0].model_name.startsWith("SM-A"))) {
-                partPrice *= 0.25;
+                if (partPrice > 30_000) {
+                    partPrice *= 0.25; // 자기부담금 25%
+                    partPrice = Math.max(partPrice, 30_000); // 자기부담금 최소 3만 원
+                }
             }
             else if (data[0].type2 === "Z 시리즈") {
-                partPrice *= 0.3;
+                if (partPrice > 30_000) {
+                    partPrice *= 0.3; // 자기부담금 30%
+                    partPrice = Math.max(partPrice, 30_000); // 자기부담금 최소 3만 원
+                }
             }
         }
 
@@ -561,48 +435,18 @@ export async function getRepairPricesByModel(model: string, careplus: string) {
         backGlassPrice += kitPrice;
 
         // 삼성 케어 플러스
-        if (careplus === "081420" || careplus === "081421") { // 2020년 8월 14일 ~ 2023년 7월 31일
-            if (data[0].type2 === "S 시리즈" || data[0].type2 === "노트 시리즈") {
-                backGlassPrice = Math.min(backGlassPrice, 80_000);
-            }
-            else if (data[0].type2 === "Z 시리즈") {
-                if (data[0].pet_name[0].includes("폴드")) {
-                    backGlassPrice = Math.min(backGlassPrice, 160_000);
-                }
-                else if (data[0].pet_name[0].includes("플립")) {
-                    backGlassPrice = Math.min(backGlassPrice, 140_000);
-                }
-            }
-            else if (data[0].type2 === "기타 시리즈") {
-                if (data[0].model_name.startsWith("SM-A")) {
-                    backGlassPrice = Math.min(backGlassPrice, 35_000);
-                }
-            }
-        }
-        else if (careplus === "080123") { // 2023년 8월 1일 ~ 2023년 12월 28일
-            if (data[0].type2 === "S 시리즈" || data[0].type2 === "노트 시리즈") {
-                backGlassPrice = Math.min(backGlassPrice, 80_000);
-            }
-            else if (data[0].type2 === "Z 시리즈") {
-                if (data[0].pet_name[0].includes("폴드")) {
-                    backGlassPrice = Math.min(backGlassPrice, 290_000);
-                }
-                else if (data[0].pet_name[0].includes("플립")) {
-                    backGlassPrice = Math.min(backGlassPrice, 190_000);
-                }
-            }
-            else if (data[0].type2 === "기타 시리즈") {
-                if (data[0].model_name.startsWith("SM-A")) {
-                    backGlassPrice = Math.min(backGlassPrice, 35_000);
-                }
-            }
-        }
-        else if (careplus === "122923") { // 2023년 12월 29일 ~
+        if (careplus === "122923") { // 2023년 12월 29일 ~
             if (data[0].type2 === "S 시리즈" || (data[0].type2 === "기타 시리즈" && data[0].model_name.startsWith("SM-A"))) {
-                backGlassPrice *= 0.25;
+                if (backGlassPrice > 30_000) {
+                    backGlassPrice *= 0.25; // 자기부담금 25%
+                    backGlassPrice = Math.max(backGlassPrice, 30_000); // 자기부담금 최소 3만 원
+                }
             }
             else if (data[0].type2 === "Z 시리즈") {
-                backGlassPrice *= 0.3;
+                if (backGlassPrice > 30_000) {
+                    backGlassPrice *= 0.3; // 자기부담금 30%
+                    backGlassPrice = Math.max(backGlassPrice, 30_000); // 자기부담금 최소 3만 원
+                }
             }
         }
     }
